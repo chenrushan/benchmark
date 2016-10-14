@@ -1,11 +1,13 @@
 #!/usr/bin/python2
+# coding: utf-8
 
 # ============================================================
 #
 # input:
 #    json benchmark config
 # output:
-#    file named __benchmark_result__
+#    stderr 包含文本结果
+#    图片包含曲线结果，图片文件名为 json config 的 desc 字段
 # USAGE:
 #    ./run_benchmark.py config.json
 # 
@@ -56,6 +58,9 @@
 import subprocess
 import json
 import sys
+import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 def get_time(fn):
     f = open(fn)
@@ -64,15 +69,32 @@ def get_time(fn):
             return float(line[8:])
     f.close()
 
+def plot(desc, xs, ys, outfn):
+    fig = plt.figure()
+    fig.suptitle(desc)
+
+    x = np.array([i for i in range(len(xs))])
+    y = np.array(ys)
+    plt.xticks(x, xs)
+    plt.plot(x, y, 'bo')
+    plt.plot(x, y)
+    fig.savefig(outfn)
+
 def main():
     jsn = json.load(open(sys.argv[1]))
 
     perfs = {}
     result_file = "__benchmark_result__"
     for run in jsn:
+        if not os.path.exists(run["cmd"]):
+            sys.stderr.write("%s not found\n" % run["cmd"])
+            sys.exit(1)
+
         print json.dumps(run)
         args = run["args"]
         sys.stderr.write("[%s]\n" % run["desc"])
+        xs = []
+        ys = []
         for a in args:
             cmd = run["cmd"] + " " + a + " 2> " + result_file
             run_times = int(run["times"])
@@ -82,8 +104,14 @@ def main():
                 total_time += get_time(result_file)
             total_time /= run_times;
 
+            xs.append(a)
+            ys.append(total_time)
             sys.stderr.write("[%s]: %f\n" % (a, total_time))
+
+        plot(run["desc"], xs, ys, run["desc"] + ".png")
         sys.stderr.write("\n")
+
+    os.remove(result_file)
 
 if __name__ == "__main__":
     main()

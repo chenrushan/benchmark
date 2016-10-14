@@ -1,5 +1,58 @@
 #!/usr/bin/python2
 
+# ============================================================
+#
+# input:
+#    json benchmark config
+# output:
+#    file named __benchmark_result__
+# USAGE:
+#    ./run_benchmark.py config.json
+# 
+# ------------------------------------------------------------
+#
+# json config example:
+# 
+# [
+#     {
+#         "desc": "performance when load is low",
+#         "cmd": "./test2",
+#         "times": 50,
+#         "args": [
+#             "1 100",
+#             "2 100",
+#             "3 100",
+#             "4 100",
+#             "8 100",
+#             "100 100"
+#         ]
+#     },
+#     {
+#         "desc": "performance when load is high",
+#         "cmd": "./test2",
+#         "times": 3,
+#         "args": [
+#             "1 50000",
+#             "2 50000",
+#             "3 50000",
+#             "4 50000",
+#             "8 50000",
+#             "100 50000",
+#             "1000 50000",
+#             "10000 50000"
+#         ]
+#     }
+# ]
+# 
+# 这个 config 中包含两组实验
+#  1. "desc" 表示某祖实验的 description
+#  2. "cmd" 指向需要调用的命令的路径，要求 cmd 的输出必须包含 "[time]: " 字段
+#  3. "args" 为命令参数，与输出结果一一对应
+#  3. "times" 表示表示每个 arg 跑多少次，每个 arg 对应的时间结果为跑这么多次后
+#     取平均的结果
+# 
+# ============================================================
+
 import subprocess
 import json
 import sys
@@ -12,7 +65,7 @@ def get_time(fn):
     f.close()
 
 def main():
-    jsn = json.load(open("runs.json"))
+    jsn = json.load(open(sys.argv[1]))
 
     perfs = {}
     result_file = "__benchmark_result__"

@@ -1,0 +1,11 @@
+[
+    {
+        "desc": "without lock",
+        "cmd": "./how_long_to_lock_a_mutex/how_long_to_lock_a_mutex",
+        "times": 50,
+        "args": [
+            "--"
+        ]
+    }
+]
+

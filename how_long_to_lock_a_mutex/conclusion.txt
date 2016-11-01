@@ -1,0 +1,7 @@
+env:
+  cpu: 4core
+  mem: 4G
+
+[without lock]: 0.225860us
+[with lock]: 1.308580us
+所以 lock 一次大概 1us，我在一个服务器跑耗时 3us，所以大概是个小几微秒的量级
